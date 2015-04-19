@@ -2,11 +2,12 @@ __author__ = 'Josh D'
 
 import requests
 import json
-
+import os
 
 API_KEY = ''
 fda_adverse_endpoint = 'https://api.fda.gov/drug/event.json?'
-data_location = '../data/'
+cur_dir = os.path.dirname(__file__)
+data_location = os.path.join(cur_dir, '../data/')
 
 
 def get_adverse_report(recievedatestart, recievedateend, limit, skip):
