@@ -1,6 +1,6 @@
 import json
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, dirname
 from itertools import chain
 import pickle
 
@@ -29,40 +29,48 @@ def read_info(filepath):
 
         _drug_epc = [r.get("openfda", {}).get('pharm_class_epc', []) for r in patient.get('drug', [])]
         _drug_epc = {x.lower() for x in chain(*_drug_epc)}
-        _drug_epcList.append((_drug_epc))
+        _drug_epcList.append(_drug_epc)
 
     return _reactionList, _drug_nameList, _drug_epcList
 
 
 if __name__ == "__main__":
+    cur_path = dirname(__file__)
+
     # Preparing data
     peopleHash = {}
 
     logs = []
 
-    mypath = './json/'
-    jsons = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    data_path = join(cur_path, '../data')
+    json_path = join(data_path, 'json')
+    jsons = [f for f in listdir(json_path) if isfile(join(json_path, f))]
 
-    count = 0
+    obs = []
 
-    Obs = []
-
-    for jFile in jsons:
+    for count, jFile in enumerate(jsons):
         try:
-            _reactionList, _drug_nameList, _drug_epcList = read_info(join(mypath, jFile))
+            _reactionList, _drug_nameList, _drug_epcList = read_info(join(json_path, jFile))
 
-            Obs.extend(zip(_reactionList, _drug_nameList, _drug_epcList))
+            x = zip(_drug_nameList, _drug_epcList)
+            y = _reactionList
+            obs.extend(zip(x, y))
 
-            count += 1
-            if count % 1000 == 0: print "%d files done..." % count
+            if count % 1000 == 0:
+                print "%d files done..." % count
 
         except StopIteration as e1:
             logs.append((jFile, e1))
         except AttributeError as e2:
             logs.append((jFile, e2))
 
-    Obs_new = []
-    for o in Obs:
-        for reaction in o[0]:
-            Obs_new.append((reaction, o[1], o[2]))
-    pickle.dump(Obs_new, open('Obs.txt', 'w'))
+    obs_new = []
+    for xs, ys in obs:
+        for y in ys:
+            # Purge empty drugs
+            # todo: are these due to program bug or is the data actually empty?
+            if len(xs[0]) > 0:
+                obs_new.append((xs, y))
+
+    pickle.dump(obs_new, open(
+        join(data_path, 'obs.p'), 'wb'))

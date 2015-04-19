@@ -4,10 +4,11 @@ import requests
 import json
 import os
 
-API_KEY = ''
+API_KEY = '3HUprADupJWJCWLW1D7e37Z2Nh6noXrYaTYJ2zMY'
 fda_adverse_endpoint = 'https://api.fda.gov/drug/event.json?'
 cur_dir = os.path.dirname(__file__)
-data_location = os.path.join(cur_dir, '../data/')
+data_path = os.path.join(cur_dir, '../data/')
+json_path = os.path.join(data_path, 'json')
 
 
 def get_adverse_report(recievedatestart, recievedateend, limit, skip):
@@ -18,7 +19,7 @@ def get_adverse_report(recievedatestart, recievedateend, limit, skip):
     r = requests.get(fda_adverse_endpoint + apikey + suffix)
     meta = r.json().get("meta").get("results")
 
-    with open(data_location + recievedatestart + '_' + recievedateend + '_' + str(limit + skip) + '_' + str(
+    with open(json_path + recievedatestart + '_' + recievedateend + '_' + str(limit + skip) + '_' + str(
             meta.get("total")) + '.json', 'w') as outfile:
         json.dump(r.json(), outfile)
 
