@@ -61,5 +61,9 @@ if __name__ == "__main__":
             logs.append((jFile,e1))
         except AttributeError as e2:
             logs.append((jFile,e2))
-            
-    pickle.dump(Obs, open('Obs.txt', 'w'))
+           
+    Obs_new = []
+    for o in Obs:
+        for reaction in o[0]:
+            Obs_new.append((reaction, o[1], o[2]))
+    pickle.dump(Obs_new, open('Obs.txt', 'w'))
